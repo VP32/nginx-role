@@ -1,0 +1,44 @@
+---
+- name: Install EPEL repo
+  become: true
+  tags: install_distrib
+  ansible.builtin.yum:
+    name: epel-release
+    state: present
+- name: Install Nginx
+  become: true
+  tags: install_distrib
+  ansible.builtin.yum:
+    name: nginx
+- name: Allow connections on 80 port
+  tags: configure
+  become: true
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_ports:
+      - "80"
+    jump: ACCEPT
+- name: Create root directory
+  tags: configure
+  become: true
+  ansible.builtin.file:
+    path: "{{ nginx_root_folder }}"
+    state: directory
+    #mode: '0755'
+- name: Copy Nginx config
+  tags: configure
+  become: true
+  ansible.builtin.template:
+    src: ./templates/nginx.j2
+    dest: /etc/nginx/nginx.conf
+    #mode: '0644'
+  notify:
+    - Start Nginx service
+- name: Flush handlers
+  meta: flush_handlers
+#- name: Start Nginx service
+#  become: true
+#  service:
+#    name: nginx
+#    state: started
