@@ -1,2 +1,3 @@
 ---
-# defaults file for nginx-role
+nginx_root_folder: "/usr/share/nginx/html"
+
